@@ -3,13 +3,14 @@ const app = express();
 const cors = require("cors");
 const bodyParser = require("body-parser");
 const helmet = require("helmet");
-const mongoose = require("mongoose");
+let connectDB = require("./config/db");
+
+const authRoutes = require("./routes/authRoutes");
+const send_formatted_response = require("./middleware/send_formatted_response");
+const authMiddleware = require("./middleware/authMiddleware");
 
 //DB connection
-mongoose.connect(process.env.DATABASE_URL, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-});
+connectDB();
 
 app.use(cors());
 app.options("*", cors());
@@ -20,6 +21,11 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(helmet());
 
 //Routes
+app.get("/healthcheck", (req, res) =>
+  res.send("Hello World! This is a health check")
+);
+app.use("/api/auth", authRoutes);
+app.use(authMiddleware);
 
 // error handling
 app.use((req, res, next) => {
@@ -28,10 +34,10 @@ app.use((req, res, next) => {
   next(error);
 });
 
-// app.use((error, req, res, next) => {
-//   res.status(error.status || 500);
-//   console.log(error);
-//   res.json(send_formatted_response(error, false, error.message));
-// });
+app.use((error, req, res, next) => {
+  res.status(error.status || 500);
+  console.log(error);
+  res.json(send_formatted_response(error, false, error.message));
+});
 
 module.exports = app;
