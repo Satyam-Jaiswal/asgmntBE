@@ -8,6 +8,8 @@ let connectDB = require("./config/db");
 const authRoutes = require("./routes/authRoutes");
 const send_formatted_response = require("./middleware/send_formatted_response");
 const authMiddleware = require("./middleware/authMiddleware");
+const feedRoutes = require("./routes/feedRoutes");
+const taskRoutes = require("./routes/taskRoutes");
 
 //DB connection
 connectDB();
@@ -26,6 +28,8 @@ app.get("/healthcheck", (req, res) =>
 );
 app.use("/api/auth", authRoutes);
 app.use(authMiddleware);
+app.use("/api/feed", feedRoutes);
+app.use("/api/tasks", taskRoutes);
 
 // error handling
 app.use((req, res, next) => {
